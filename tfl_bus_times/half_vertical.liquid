@@ -4,9 +4,9 @@
     <span class="title">{{ sorted_buses.first.stationName }}</span>
   </div>
 
-  {% for bus in sorted_buses limit: 2 %}
+  {% for bus in sorted_buses %}
   <div class="item">
-    <div class="content">
+    <div class="content w--full">
       <div class="grid grid--cols-2">
         <span class="value">{{ bus.lineName }}</span>
         <span class="value text--right">{{ bus.expectedArrival | date: "%H:%M" }}</span>
