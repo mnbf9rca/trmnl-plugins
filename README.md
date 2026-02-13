@@ -6,6 +6,8 @@ Recipe plugins for [TRMNL](https://usetrmnl.com) e-ink displays.
 
 Live bus arrival times from Transport for London. Polls the TfL API every 5 minutes and shows the next buses at your stop, sorted by arrival time.
 
+![a screen shot showing bus arrivals](docs/bus-times.png)
+
 Works across all four TRMNL layout sizes (full, half horizontal, half vertical, quadrant).
 
 ### Setup
