@@ -1,27 +1,23 @@
-<div class="view" style="padding: 2px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-  <div>
-    <div class="title_bar">
-      <img class="image" src="https://img.icons8.com/ios-filled/50/bus.png" />
-      <span class="title">{{ sorted_buses.first.stationName }}</span>
-    </div>
-
-    <div class="layout layout--col">
-      {% for bus in sorted_buses limit: 2 %}
-      <div class="item">
-        <div class="content">
-          <div style="display: flex; justify-content: space-between; width: 100%;">
-            <span class="value">{{ bus.lineName }}</span>
-            <span class="value">{{ bus.expectedArrival | date: "%H:%M" }}</span>
-          </div>
-          <span class="value value--small">{{ bus.destinationName }}</span>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-
+<div class="layout layout--col layout--top layout--stretch-x">
   <div class="title_bar">
-    <img class="image" src="https://upload.wikimedia.org/wikipedia/commons/3/3e/TfL_roundel_%28no_text%29.svg">
-    <span class="title">Transport for London</span>
+    <img class="image" src="https://img.icons8.com/ios-filled/50/bus.png" />
+    <span class="title">{{ sorted_buses.first.stationName }}</span>
   </div>
+
+  {% for bus in sorted_buses limit: 2 %}
+  <div class="item">
+    <div class="content">
+      <div class="grid grid--cols-2">
+        <span class="value">{{ bus.lineName }}</span>
+        <span class="value text--right">{{ bus.expectedArrival | date: "%H:%M" }}</span>
+      </div>
+      <span class="value value--small">{{ bus.destinationName }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="title_bar">
+  <img class="image" src="https://upload.wikimedia.org/wikipedia/commons/3/3e/TfL_roundel_%28no_text%29.svg">
+  <span class="title">Transport for London</span>
 </div>

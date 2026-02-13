@@ -1,6 +1,6 @@
-<div class="view" style="padding: 2px;">
-  <div class="title_bar" style="justify-content: space-between;">
-    <div style="display: flex; align-items: center; gap: 8px;">
+<div class="layout layout--col layout--stretch-x">
+  <div class="title_bar gap--distribute">
+    <div class="title_bar">
       <img class="image" src="https://img.icons8.com/ios-filled/50/bus.png" />
       <span class="title">{{ sorted_buses.first.stationName }}</span>
     </div>
@@ -10,17 +10,17 @@
   <table class="table table--large" data-table-limit="true">
     <thead>
       <tr>
-        <th style="padding-left: 6px;"><span class="title" >Bus</span></th>
+        <th class="pl--1"><span class="title">Bus</span></th>
         <th><span class="title">Destination</span></th>
-        <th style="text-align: right; padding-right: 6px"><span class="title">Arrives</span></th>
+        <th class="text--right pr--1"><span class="title">Arrives</span></th>
       </tr>
     </thead>
     <tbody>
       {% for bus in sorted_buses %}
       <tr>
-        <td style="padding-left: 4px;"><span class="value">{{ bus.lineName }}</span></td>
-        <td><span class="value" >{{ bus.destinationName }}</span></td>
-        <td style="text-align: right; padding-right: 4px"><span class="value">{{ bus.expectedArrival | date: "%H:%M" }}</span></td>
+        <td class="pl--1"><span class="value">{{ bus.lineName }}</span></td>
+        <td><span class="value">{{ bus.destinationName }}</span></td>
+        <td class="text--right pr--1"><span class="value">{{ bus.expectedArrival | date: "%H:%M" }}</span></td>
       </tr>
       {% endfor %}
     </tbody>

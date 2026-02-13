@@ -1,32 +1,30 @@
-<div class="view" style="padding: 2px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-  <div>
-    <div class="title_bar">
-      <img class="image" src="https://img.icons8.com/ios-filled/50/bus.png" />
-      <span class="title title--small">{{ sorted_buses.first.stationName }}</span>
-    </div>
-
-    <table class="table table--xsmall" data-table-limit="true">
-      <thead>
-        <tr>
-          <th style="padding-left:6px"><span class="title title--small">Bus</span></th>
-          <th><span class="title title--small">Dest</span></th>
-          <th style="text-align: right; padding-right:6px"><span class="title title--small">Arrival</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for bus in sorted_buses %}
-        <tr>
-          <td style="padding-left:6px"><span class="label">{{ bus.lineName }}</span></td>
-          <td><span class="label">{{ bus.destinationName }}</span></td>
-          <td style="text-align: right; padding-right:6px"><span class="label">{{ bus.expectedArrival | date: "%H:%M" }}</span></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
+<div class="layout layout--col layout--top layout--stretch-x">
   <div class="title_bar">
-    <img class="image" src="https://upload.wikimedia.org/wikipedia/commons/3/3e/TfL_roundel_%28no_text%29.svg">
-    <span class="title title--small">Transport for London</span>
+    <img class="image" src="https://img.icons8.com/ios-filled/50/bus.png" />
+    <span class="title title--small">{{ sorted_buses.first.stationName }}</span>
   </div>
+
+  <table class="table table--xsmall" data-table-limit="true">
+    <thead>
+      <tr>
+        <th class="pl--1"><span class="title title--small">Bus</span></th>
+        <th><span class="title title--small">Dest</span></th>
+        <th class="text--right pr--1"><span class="title title--small">Arrival</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for bus in sorted_buses %}
+      <tr>
+        <td class="pl--1"><span class="label">{{ bus.lineName }}</span></td>
+        <td><span class="label">{{ bus.destinationName }}</span></td>
+        <td class="text--right pr--1"><span class="label">{{ bus.expectedArrival | date: "%H:%M" }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="title_bar">
+  <img class="image" src="https://upload.wikimedia.org/wikipedia/commons/3/3e/TfL_roundel_%28no_text%29.svg">
+  <span class="title title--small">Transport for London</span>
 </div>
