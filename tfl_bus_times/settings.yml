@@ -1,0 +1,25 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://api.tfl.gov.uk/StopPoint/{{ stoppoint }}/Arrivals
+polling_headers: ''
+polling_body: ''
+id: 234101
+custom_fields:
+- keyname: stoppoint
+  field_type: string
+  name: String
+  description: Bus stop ID
+  help_text: Enter TfL StopPoint ID. Get this by searching for live arrivals at a specific bus stop and it's the code in the URL.
+- keyname: doesnt_matter
+  name: About This Plugin
+  category: travel,news
+  field_type: author_bio
+  description: Add live updates from TfL bus stops. Not affiliated with TfL but does use their free, public API.
+  github_url: https://github.com/mnbf9rca
+  learn_more_url: https://blog.cynexia.com
+name: TfL Bus Stops - real time bus time arrivals
+refresh_interval: 5
