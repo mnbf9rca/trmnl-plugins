@@ -8,7 +8,7 @@ Rail Data Marketplace product **Live Departure Board** (`P-d81d6eaf-8060-4467-a3
 
 - Operation: `GetDepartureBoard/{crs}`
 - Auth: `x-apikey` header
-- Query parameters used: `numRows=10`, `timeWindow=120`, and when a filter station is set, `filterCrs={code}&filterType=to`. The filter matches any service that calls at that station, so it doubles as a "direction" filter.
+- Query parameters used: `numRows=10`, `timeWindow=120`, and when a filter station is set, `filterCrs={code}&filterType=to`. The filter matches any service that calls at that station, so it doubles as a "direction" filter. The API also accepts an empty `filterCrs=` as no filter (verified September 3, 2026).
 - Licence terms require attribution to Rail Delivery Group.
 
 Response fields used:
@@ -46,6 +46,7 @@ Per service the status text is: `Cancelled` if `isCancelled`; otherwise `etd` wh
 
 - Services present: table with Time, Destination, Platform, Status. Quadrant omits Platform. Below the table, the first disruption notice, HTML stripped and truncated to one line, when one exists.
 - No services: the table is replaced by the disruption notices in full, or "No departures in the next 2 hours" if there are none.
+- No station name at all (the poll failed): "Could not fetch departures" followed by the API error text when the body carries one (`fault.faultstring` on 401, `Message` on 400). Confirmed in TRMNL on September 3, 2026.
 
 Footer attributes Rail Delivery Group.
 
@@ -53,10 +54,12 @@ Footer attributes Rail Delivery Group.
 
 Delay and cancellation reason text per row, operator, calling points, configurable time window, the Next Departures and Fastest Departures products.
 
-## Verification (needs the API key)
+## Verification
 
-1. Paste the exact base URL from the product's Specification tab into `polling_url` if it differs.
-2. Force Refresh in the recipe editor and confirm merge variables arrive at the top level (`trainServices`) rather than under `data`. `shared.liquid` handles both.
-3. Confirm the `{% if filter_crs != blank %}` in `polling_url` is evaluated. If not, make `filter_crs` required and drop the condition.
-4. Confirm `nrccMessages` items use `Value` (capital) or `value`. `shared.liquid` handles both.
+Done on September 3, 2026 against the live API: the URL in `polling_url` is correct, `x-apikey` is accepted, all field names match, and `nrccMessages` items use `Value`. Remaining checks happen inside the TRMNL recipe editor:
+
+1. ~~Base URL~~ Confirmed.
+2. ~~Top level vs `data`~~ Confirmed top level (TRMNL's `trmnlp` poller wraps only arrays as `data`).
+3. ~~Liquid `{% if %}` in `polling_url`~~ Confirmed evaluated (filtered board rendered in TRMNL on September 3, 2026).
+4. ~~`nrccMessages` casing~~ Confirmed `Value`.
 5. Check all four layouts with a filtered and an unfiltered station, and observe one delayed or cancelled service.

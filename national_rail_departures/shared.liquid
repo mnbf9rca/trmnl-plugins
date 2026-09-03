@@ -1,0 +1,65 @@
+<style>
+  /* Sized by flexbox to the space left under the title bar, so the table row limiter measures the right height. */
+  .board { flex: 1 1 0; min-height: 0; width: 100%; }
+</style>
+{% assign services = trainServices | default: data.trainServices %}
+{% assign messages = nrccMessages | default: data.nrccMessages %}
+{% assign station = locationName | default: data.locationName %}
+{% assign filter_station = filterLocationName | default: data.filterLocationName %}
+{% assign api_error = fault.faultstring | default: Message | default: data.fault.faultstring | default: data.Message %}
+{% assign train_icon = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8IS0tIGJvZHkgLS0+CiAgPHJlY3QgeD0iMTE2IiB5PSI3MiIgd2lkdGg9IjI4MCIgaGVpZ2h0PSIzMTYiIHJ4PSI2MCIgZmlsbD0iIzAwMDAwMCIvPgogIDwhLS0gd2luZHNjcmVlbiAtLT4KICA8cmVjdCB4PSIxNTIiIHk9IjExMiIgd2lkdGg9IjIwOCIgaGVpZ2h0PSIxMjAiIHJ4PSIyMCIgZmlsbD0iI2ZmZmZmZiIvPgogIDwhLS0gaGVhZGxpZ2h0cyAtLT4KICA8Y2lyY2xlIGN4PSIxNzYiIGN5PSIzMTYiIHI9IjI2IiBmaWxsPSIjZmZmZmZmIi8+CiAgPGNpcmNsZSBjeD0iMzM2IiBjeT0iMzE2IiByPSIyNiIgZmlsbD0iI2ZmZmZmZiIvPgogIDwhLS0gYnVtcGVyIC0tPgogIDxyZWN0IHg9IjE2MCIgeT0iMzY4IiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjI4IiByeD0iMTQiIGZpbGw9IiMwMDAwMDAiLz4KICA8IS0tIHJhaWxzIC0tPgogIDxyZWN0IHg9Ijk2IiB5PSI0MjQiIHdpZHRoPSIzMjAiIGhlaWdodD0iMjAiIHJ4PSIxMCIgZmlsbD0iIzAwMDAwMCIvPgogIDxyZWN0IHg9IjYwIiB5PSI0NjAiIHdpZHRoPSIzOTIiIGhlaWdodD0iMjAiIHJ4PSIxMCIgZmlsbD0iIzAwMDAwMCIvPgogIDwhLS0gd2hlZWxzL2xlZ3MgLS0+CiAgPHJlY3QgeD0iMTY0IiB5PSIzODgiIHdpZHRoPSIzNiIgaGVpZ2h0PSI0NCIgZmlsbD0iIzAwMDAwMCIvPgogIDxyZWN0IHg9IjMxMiIgeT0iMzg4IiB3aWR0aD0iMzYiIGhlaWdodD0iNDQiIGZpbGw9IiMwMDAwMDAiLz4KPC9zdmc+Cg==" %}
+
+{% template board %}
+{% assign n_services = services | size %}
+{% assign n_messages = messages | size %}
+{% if station == nil %}
+{% if api_error %}
+<span class="{{ cell_class }} px--1">Could not fetch departures: {{ api_error }}</span>
+{% else %}
+<span class="{{ cell_class }} px--1">Could not fetch departures. Check the API key and station code in the plugin settings.</span>
+{% endif %}
+{% elsif n_services > 0 %}
+<div class="board">
+<table class="table {{ table_class }}" data-table-limit="true">
+  <thead>
+    <tr>
+      <th class="pl--1"><span class="title {{ head_class }}">Time</span></th>
+      <th><span class="title {{ head_class }}">Destination</span></th>
+      {% if platform %}<th class="text--center"><span class="title {{ head_class }}">Plat</span></th>{% endif %}
+      <th class="text--right pr--1"><span class="title {{ head_class }}">Status</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in services %}
+    {% assign dest = s.destination.first %}
+    {% if s.isCancelled %}
+      {% assign status = "Cancelled" %}
+    {% elsif s.etd == "On time" or s.etd == "Delayed" or s.etd == "No report" %}
+      {% assign status = s.etd %}
+    {% else %}
+      {% assign status = "Exp " | append: s.etd %}
+    {% endif %}
+    <tr>
+      <td class="pl--1"><span class="{{ cell_class }} value--tnums">{{ s.std }}</span></td>
+      <td><span class="{{ cell_class }}">{{ dest.locationName }}{% if dest.via %} {{ dest.via }}{% endif %}</span></td>
+      {% if platform %}<td class="text--center"><span class="{{ cell_class }}">{{ s.platform | default: "-" }}</span></td>{% endif %}
+      <td class="text--right pr--1">
+        {% if status == "On time" %}<span class="{{ cell_class }}">{{ status }}</span>{% else %}<span class="label label--inverted">{{ status }}</span>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if n_messages > 0 %}
+{% assign m = messages.first %}
+<span class="label label--small px--1" data-clamp="1">{{ m.Value | strip_html | strip | truncate: 140 }}</span>
+{% endif %}
+{% elsif n_messages > 0 %}
+{% for m in messages %}
+<span class="{{ cell_class }} px--1">{{ m.Value | strip_html | strip }}</span>
+{% endfor %}
+{% else %}
+<span class="{{ cell_class }} px--1">No departures in the next 2 hours</span>
+{% endif %}
+{% endtemplate %}
