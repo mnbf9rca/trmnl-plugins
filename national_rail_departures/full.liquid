@@ -1,0 +1,9 @@
+<div class="layout layout--col layout--top layout--stretch-x">
+  <div class="title_bar">
+    <img class="image image-dither" src="{{ train_icon }}" />
+    <span class="title">{{ station | default: "Train departures" }}{% if filter_station %} via {{ filter_station }}{% endif %}</span>
+    <span class="instance">National Rail</span>
+  </div>
+
+  {% render "board", station: station, api_error: api_error, services: services, messages: messages, table_class: "table--large", head_class: "", cell_class: "value", platform: true %}
+</div>

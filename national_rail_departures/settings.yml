@@ -1,0 +1,52 @@
+---
+strategy: polling
+no_screen_padding: 'yes'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: "https://api1.raildata.org.uk/1010-live-departure-board-dep1_2/LDBWS/api/20220120/GetDepartureBoard/{{ crs }}?numRows=10&timeWindow=120{% if filter_crs != blank %}&filterCrs={{ filter_crs }}&filterType=to{% endif %}"
+polling_headers: x-apikey={{ api_key }}
+polling_body: ''
+custom_fields:
+- keyname: api_key
+  field_type: password
+  name: Rail Data Marketplace API key
+  description: Consumer key for the "Live Departure Board" data product
+  help_text: Get a FREE API key by registering and subscribing at <a href="https://raildata.org.uk/dashboard/dataProduct/P-d81d6eaf-8060-4467-a339-1c833e50cbbe/overview">Rail Data Marketplace</a>, then copy the consumer key from the product's Specification tab.
+- keyname: crs
+  field_type: string
+  name: Station code
+  description: Three-letter CRS code of the departure station
+  maxlength: 3
+  placeholder: WIM
+  help_text: Find it on the <a href="https://www.nationalrail.co.uk/stations/">National Rail station pages</a> or in the URL of any journey planner result.
+- keyname: filter_crs
+  field_type: string
+  name: Calling at (optional)
+  description: Only show trains that call at this station
+  maxlength: 3
+  placeholder: WAT
+  optional: true
+  help_text: Use a station further along your route to show only trains in that direction. Leave blank for all departures.
+- keyname: about
+  name: About This Plugin
+  category: travel,news
+  field_type: author_bio
+  description: |
+    Live UK train departures on your TRMNL: the next trains from any National Rail station with platform, delays and cancellations. Set an optional "calling at" station to show only trains in one direction, for example towards work. Station disruption notices appear under the board.
+    <br><br>
+    Built on the new <a href="https://raildata.org.uk">Rail Data Marketplace</a> API, the official replacement for the retired National Rail OpenLDBWS feed.
+    <br><br>
+    <strong>Setup</strong>
+    <br>
+    1. Register for free at Rail Data Marketplace and subscribe to the free <a href="https://raildata.org.uk/dashboard/dataProduct/P-d81d6eaf-8060-4467-a339-1c833e50cbbe/overview">Live Departure Board</a> data product.<br>
+    2. Copy the consumer key from the product's Specification tab into the API key field.<br>
+    3. Enter your station's three-letter CRS code, and optionally a calling-at station code.
+    <br><br>
+    <strong>Attribution</strong>
+    <br>
+    Darwin data from Rail Delivery Group. Not affiliated with National Rail.
+  github_url: https://github.com/mnbf9rca
+  learn_more_url: https://blog.cynexia.com
+name: Live UK train departures & delays
+refresh_interval: 5
