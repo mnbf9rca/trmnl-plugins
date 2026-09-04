@@ -38,6 +38,8 @@ Live train departures from any National Rail station, with platform and status. 
 
 Works across all four TRMNL layout sizes.
 
+![a screen shot showing train arrivals on platform](docs/train-times.png)
+
 ### Setup
 
 1. Register at [Rail Data Marketplace](https://raildata.org.uk).
@@ -64,6 +66,36 @@ national_rail_departures/
 ### Data source
 
 Uses the Live Departure Board product on [Rail Data Marketplace](https://raildata.org.uk), a JSON wrapper over National Rail's Darwin feed. Data is provided by Rail Delivery Group and requires attribution. Not affiliated with National Rail or Rail Delivery Group.
+
+## Simple Tube Status
+
+Which TfL lines are disrupted right now and why, or "Good service on all lines" when nothing is. Each disrupted line shows its reason when there is room; on a busy day with many disrupted lines the board collapses to a compact wrapped list of line names and status words. Polls the TfL status feed every 5 minutes for the modes you choose (tube, Elizabeth line and Overground by default).
+
+Works across all four TRMNL layout sizes.
+
+![a screen shot of a board showing 3 delayed lines](docs/tube-status.png)
+
+### Setup
+
+1. In the TRMNL recipe editor, create a new recipe using the files in `simple_tube_status/`.
+2. Leave `modes` as `tube,elizabeth-line,overground`, or edit the comma-separated list. `dlr` and `tram` are valid additions.
+
+### Files
+
+```
+simple_tube_status/
+  settings.yml          # API config and custom fields
+  shared.liquid         # Normalises the payload and defines the shared board template
+  full.liquid           # Full-screen layout
+  half_horizontal.liquid
+  half_vertical.liquid
+  quadrant.liquid
+  check.py              # Local render check: python3 simple_tube_status/check.py (needs python-liquid)
+```
+
+### Data source
+
+Uses the [TfL Unified API](https://api.tfl.gov.uk/) (free, no key required). Not affiliated with TfL.
 
 ## Framework cheat sheet
 
