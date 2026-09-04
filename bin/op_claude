@@ -1,0 +1,15 @@
+#!/bin/sh
+# Usage: op_claude <plugin_dir> [claude args...]
+# Starts claude with <plugin_dir>/.env.tpl injected into just the claude process.
+# That file holds the plugin's TRMNL_MCP_API_KEY reference, which .mcp.json
+# reads, plus any data-source secrets the plugin needs.
+# --no-masking is required: masking pipes claude's stdout, claude then sees no
+# terminal and falls into print mode (github.com/anthropics/claude-code/issues/6820).
+cd "$(dirname "$0")/.." || exit 1
+plugin="$1"
+if [ ! -f "$plugin/.env.tpl" ]; then
+  echo "usage: op_claude <plugin_dir> [claude args...]  (no $plugin/.env.tpl found)" >&2
+  exit 2
+fi
+shift
+exec op run --no-masking --env-file="$plugin/.env.tpl" -- claude "$@"
