@@ -1,0 +1,30 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://api.tfl.gov.uk/Line/Mode/{{ modes }}/Status
+polling_headers: ''
+polling_body: ''
+custom_fields:
+- keyname: modes
+  field_type: string
+  name: Modes
+  description: TfL modes to check
+  default: tube,elizabeth-line,overground
+  help_text: Comma-separated TfL mode names. The default <code>tube,elizabeth-line,overground</code> covers the Underground, Elizabeth line and Overground. Add <code>dlr</code> or <code>tram</code> to include those too.
+- keyname: about
+  name: About This Plugin
+  category: travel,news
+  field_type: author_bio
+  description: |
+    A glanceable disruption summary, not a full line-by-line status board. When every line runs normally, the screen says "Good service on all lines" and nothing else. When something is wrong, it lists only the disrupted lines, each with its most serious status and TfL's reason, and shrinks the layout on busy days so every disrupted line stays visible.
+    <br><br>
+    Choose which modes to watch: Underground, Elizabeth line, Overground, DLR or Tram. No account or API key is required.
+    <br><br>
+    Not affiliated with TfL. Uses their free, public API.
+  github_url: https://github.com/mnbf9rca
+  learn_more_url: https://blog.cynexia.com
+name: TfL Line Status - disruption summary
+refresh_interval: 5
