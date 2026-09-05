@@ -27,6 +27,7 @@ for s in ["Wimbledon", "10:32", "On time", "Exp 10:47", "via Clapham Junction", 
           "Delays between Wimbledon and Waterloo.", "<th"]:
     assert s in out, f"missing {s!r}"
 assert "<a href" not in out, "html not stripped"
+assert "lg:value--large" in out and "lg:portrait:value--base" in out, "TRMNL X sizing"
 assert out.count("label--inverted") == 2, "only late/cancelled get inverted"
 assert 'class="instance"' in out and "data:image/svg+xml;base64," in out, "documented title bar with embedded icon"
 assert "icons8" not in out and "gap--distribute" not in out, "no external icon, no nested title bar"
