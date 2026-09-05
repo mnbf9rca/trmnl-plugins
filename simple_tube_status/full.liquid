@@ -1,8 +1,8 @@
 <div class="layout layout--col layout--top layout--stretch-x">
-  {% render "board", lines: lines, api_error: api_error, table_class: "table--large", head_class: "", cell_class: "value value--small", max_with_reason: 5, max_rows: 10 %}
+  {% render "board", lines: lines, api_error: api_error, table_class: "table--small lg:table--base", head_class: "lg:title--large lg:portrait:title--base", cell_class: "value value--small lg:value--large lg:portrait:value--base", max_with_reason: 3, max_rows: 8, max_with_reason_lg: 4, max_rows_lg: 9 %}
 </div>
 
 <div class="title_bar">
   <img class="image image-dither" src="{{ roundel }}" />
-  <span class="title">TfL Line Status</span>
+  <span class="title lg:title--large lg:portrait:title--base">TfL Line Status</span>
 </div>
