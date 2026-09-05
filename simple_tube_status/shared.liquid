@@ -1,7 +1,3 @@
-<style>
-  /* Sized by flexbox to the space above the title bar, so the table row limiter measures the right height. */
-  .board { flex: 1 1 0; min-height: 0; width: 100%; }
-</style>
 {% assign lines = data %}
 {% assign api_error = message | default: data.message %}
 {% assign roundel = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIzLjAuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9InN2ZzIxNTgiIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCgkgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCA2MTUuMzIyIDUwMCIKCSBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA2MTUuMzIyIDUwMCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPHBhdGggZmlsbD0iIzAwMEY5RiIgZD0iTTQ2OS40NTMsMjQ5Ljk4NmMwLDg5LjA3OC03Mi4yNiwxNjEuMzA4LTE2MS4zMzcsMTYxLjMwOGMtODkuMSwwLTE2MS4yOTQtNzIuMjMtMTYxLjI5NC0xNjEuMzA4CgkJYzAtODkuMDYzLDcyLjE5NC0xNjEuMjg2LDE2MS4yOTQtMTYxLjI4NkMzOTcuMTk0LDg4LjY5OSw0NjkuNDUzLDE2MC45MjIsNDY5LjQ1MywyNDkuOTg2IE0zMDguMTE2LDAKCQlDMTcwLjAyNywwLDU4LjA5NCwxMTEuOTI1LDU4LjA5NCwyNDkuOTg2QzU4LjA5NCwzODguMDYsMTcwLjAyNyw1MDAsMzA4LjExNiw1MDBjMTM4LjA2LDAsMjQ5Ljk4NS0xMTEuOTQsMjQ5Ljk4NS0yNTAuMDE0CgkJQzU1OC4xMDEsMTExLjkyNSw0NDYuMTc2LDAsMzA4LjExNiwwIi8+Cgk8cmVjdCB5PSIxOTkuNTE2IiBmaWxsPSIjMDAwRjlGIiB3aWR0aD0iNjE1LjMyMiIgaGVpZ2h0PSIxMDEuMTI5Ii8+CjwvZz4KPC9zdmc+Cg==" %}
@@ -28,9 +24,16 @@
 {%- endfor -%}
 {% if disrupted == 0 %}
 <div class="flex flex--center-x flex--center-y stretch-y">
-  <span class="value value--large">Good service on all lines</span>
+  <span class="value value--large lg:value--xlarge lg:portrait:value--large">Good service on all lines</span>
 </div>
-{% elsif disrupted <= max_rows %}
+{% else %}
+{% assign show_table = false %}
+{% if disrupted <= max_rows_lg %}{% assign show_table = true %}{% endif %}
+{% assign show_compact = false %}
+{% if disrupted > max_rows %}{% assign show_compact = true %}{% endif %}
+{% assign both = false %}
+{% if show_table and show_compact %}{% assign both = true %}{% endif %}
+{% if show_table %}
 {% capture rows %}
 {% for line in lines %}
 {%- assign best_rank = 1000 -%}
@@ -50,21 +53,59 @@
 {%- endfor -%}
 {% if best_rank < 1000 %}
     <tr>
-      {% if disrupted <= max_with_reason %}
+      {% if disrupted <= max_with_reason_lg %}
       {%- comment -%}ponytail: drops everything before the first ": "; TfL always prefixes the line name{%- endcomment -%}
       {% assign reason_parts = best_status.reason | strip | split: ": " %}
       {% if reason_parts.size > 1 %}{% assign reason = reason_parts | slice: 1, 99 | join: ": " %}{% else %}{% assign reason = reason_parts | first %}{% endif %}
-      <td class="pl--1"><span class="{{ cell_class }}">{{ line.name | escape }}</span><br><span class="label" data-clamp="2">{{ reason | escape }}</span></td>
+      {% if disrupted <= max_with_reason %}{% assign reason_class = "label lg:label--large lg:portrait:label--base block" %}{% else %}{% assign reason_class = "label lg:label--large lg:portrait:label--base hidden lg:visible" %}{% endif %}
+      <td class="pl--1"><span class="{{ cell_class }}">{{ line.name | escape }}</span><span class="{{ reason_class }}" data-clamp="2">{{ reason | escape }}</span></td>
       {% else %}
       <td class="pl--1"><span class="{{ cell_class }}">{{ line.name | escape }}</span></td>
       {% endif %}
-      <td class="text--right pr--1"><span class="label label--inverted">{{ best_status.statusSeverityDescription | escape }}</span></td>
+      <td class="text--right pr--1"><span class="label label--inverted lg:label--large lg:portrait:label--base">{{ best_status.statusSeverityDescription | escape }}</span></td>
     </tr>
 {% endif %}
 {% endfor %}
 {% endcapture %}
-<div class="board">
-<table class="table {{ table_class }}" data-table-limit="true">
+{% endif %}
+{% if show_compact %}
+{% assign half = disrupted | plus: 1 | divided_by: 2 %}
+{% assign seen = 0 %}
+{% capture col1 %}{% endcapture %}
+{% capture col2 %}{% endcapture %}
+{%- for line in lines -%}
+{%- assign best_rank = 1000 -%}
+{%- assign best_status = nil -%}
+{%- for status in line.lineStatuses -%}
+{%- if status.statusSeverity != 10 and status.statusSeverity != 18 and status.statusSeverity != 20 -%}
+{%- assign this_rank = 99 -%}
+{%- assign sev_str = status.statusSeverity | append: "" -%}
+{%- for code in severity_rank -%}
+{%- if sev_str == code -%}{%- assign this_rank = forloop.index0 -%}{%- endif -%}
+{%- endfor -%}
+{%- if this_rank < best_rank -%}
+{%- assign best_status = status -%}
+{%- assign best_rank = this_rank -%}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+{%- if best_rank < 1000 -%}
+{%- assign short_name = line.name | replace: "Hammersmith & City", "H&C" | replace: "Waterloo & City", "W&C" -%}
+{%- capture row -%}<tr><td class="pl--1"><span class="{{ cell_class }}">{{ short_name | escape }}</span></td><td class="text--right pr--1"><span class="label label--inverted lg:label--large lg:portrait:label--base">{{ best_status.statusSeverityDescription | escape }}</span></td></tr>
+{%- endcapture -%}
+{%- assign seen = seen | plus: 1 -%}
+{%- if seen <= half -%}
+{%- assign col1 = col1 | append: row -%}
+{%- else -%}
+{%- assign col2 = col2 | append: row -%}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+{% endif %}
+<div class="grow w--full">
+{% if show_table %}
+{% if both %}<div class="hidden lg:visible">{% endif %}
+<table class="table {{ table_class }}">
   <thead>
     <tr>
       <th class="pl--1"><span class="title {{ head_class }}">Line</span></th>
@@ -75,33 +116,24 @@
 {{ rows }}
   </tbody>
 </table>
+{% if both %}</div>{% endif %}
+{% endif %}
+{% if show_compact %}
+{% if both %}<div class="lg:hidden">{% endif %}
+<div class="columns">
+  <div class="column">
+    <table class="table {{ table_class }}"><tbody>
+{{ col1 }}
+    </tbody></table>
+  </div>
+  <div class="column">
+    <table class="table {{ table_class }}"><tbody>
+{{ col2 }}
+    </tbody></table>
+  </div>
 </div>
-<span class="{{ cell_class }} px--1">Good service on all other lines</span>
-{% else %}
-<div class="board">
-<div class="flex flex--wrap gap--small px--1">
-  {%- for line in lines -%}
-  {%- assign best_rank = 1000 -%}
-  {%- assign best_status = nil -%}
-  {%- for status in line.lineStatuses -%}
-  {%- if status.statusSeverity != 10 and status.statusSeverity != 18 and status.statusSeverity != 20 -%}
-  {%- assign this_rank = 99 -%}
-  {%- assign sev_str = status.statusSeverity | append: "" -%}
-  {%- for code in severity_rank -%}
-  {%- if sev_str == code -%}{%- assign this_rank = forloop.index0 -%}{%- endif -%}
-  {%- endfor -%}
-  {%- if this_rank < best_rank -%}
-  {%- assign best_status = status -%}
-  {%- assign best_rank = this_rank -%}
-  {%- endif -%}
-  {%- endif -%}
-  {%- endfor -%}
-  {%- if best_rank < 1000 -%}
-  {%- assign short_name = line.name | replace: "Hammersmith & City", "H&C" | replace: "Waterloo & City", "W&C" -%}
-  <div class="flex gap--small flex--center-y"><span class="{{ cell_class }}">{{ short_name | escape }}</span><span class="label label--inverted">{{ best_status.statusSeverityDescription | escape }}</span></div>
-  {%- endif -%}
-  {%- endfor -%}
-</div>
+{% if both %}</div>{% endif %}
+{% endif %}
 </div>
 <span class="{{ cell_class }} px--1">Good service on all other lines</span>
 {% endif %}

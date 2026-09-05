@@ -69,7 +69,7 @@ Uses the Live Departure Board product on [Rail Data Marketplace](https://raildat
 
 ## Simple Tube Status
 
-Which TfL lines are disrupted right now and why, or "Good service on all lines" when nothing is. Each disrupted line shows its reason when there is room; on a busy day with many disrupted lines the board collapses to a compact wrapped list of line names and status words. Polls the TfL status feed every 5 minutes for the modes you choose (tube, Elizabeth line and Overground by default).
+Which TfL lines are disrupted right now and why, or "Good service on all lines" when nothing is. Each disrupted line shows its reason when there is room; on a busy day with many disrupted lines the board collapses to two side-by-side columns of line names and status words. Polls the TfL status feed every 5 minutes for the modes you choose (tube, Elizabeth line and Overground by default).
 
 Works across all four TRMNL layout sizes.
 
