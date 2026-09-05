@@ -63,5 +63,5 @@ Do not revisit these without new evidence from a device or the simulator:
 - `image-dither` on the icon is harmless on a black silhouette; leave it.
 
 - The Simple Tube Status layouts write the `title_bar` div by hand, as `tfl_bus_times` does, rather than `{% render 'title_bar' %}`. The cheat sheet only requires it to be a sibling of `layout`, and the hand-written version is what the device has shown.
-- The recipe checker runs its "no layout class" and "no responsive classes" hints against the shared markup too, where neither belongs. The four layouts carry `layout layout--col`, and the plugin targets the original 800 by 480 device, so TRMNL X portrait variants are not built.
+- The recipe checker runs its "no layout class" and "no responsive classes" hints against the shared markup too, where neither belongs. The four layouts carry `layout layout--col`, and TRMNL X sizing uses `lg:` and `lg:portrait:` prefixes on the size classes passed into the board template.
 - No validation on the `modes` field. A misspelt mode makes TfL return a 400, and the board shows "Could not fetch TfL status" with TfL's own message naming the bad mode, so the mistake is not silent. The help text already lists all five valid names.
