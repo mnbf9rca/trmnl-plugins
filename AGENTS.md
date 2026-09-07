@@ -8,6 +8,7 @@ Recipe plugins for TRMNL e-ink displays. One directory per plugin, each holding 
 - Build the smallest thing that works. No abstractions, scaffolding, or configuration for needs that do not exist yet.
 - Follow the writing-clearly rules for any prose (README, specs, help text).
 - Commit only when asked. Match the existing line endings of a file you edit (`README.md` uses CRLF).
+- Before a pull request is ready to merge, anything done to verify it that is not already in the repo (a fixture, a measurement pass, a device or editor test method) goes into AGENTS.md and the repo in that same pull request. Nothing about how the change was proven should have to be rediscovered.
 - Design specs live in `docs/superpowers/specs/`. Read the relevant spec before changing a plugin.
 - `TRMNL_FRAMEWORK_CHEAT_SHEET.md` lists every framework CSS class. Use it instead of guessing class names.
 
