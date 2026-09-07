@@ -14,6 +14,12 @@ custom_fields:
   description: TfL modes to check
   default: tube,elizabeth-line,overground
   help_text: Comma-separated TfL mode names. The default <code>tube,elizabeth-line,overground</code> covers the Underground, Elizabeth line and Overground. Add <code>dlr</code> or <code>tram</code> to include those too.
+- keyname: show_disruptions
+  field_type: boolean
+  default: false
+  name: Show disruption information
+  description: Show TfL's reason under each disrupted line
+  help_text: Off by default. The reason text is small on the original TRMNL but reads well on a TRMNL X.
 - keyname: about
   name: About This Plugin
   category: travel,news
