@@ -9,22 +9,39 @@ head = shared[: m.start()]
 env = Environment(loader=DictLoader({"board": m.group(1)}))
 LAYOUTS = ["full.liquid", "half_horizontal.liquid", "half_vertical.liquid", "quadrant.liquid"]
 LAYOUT_CFG = {
-    "full.liquid": {"cell_class": "value value--small lg:value--large lg:portrait:value--base",
-                     "big_class": "value value--large lg:value--large lg:portrait:value--base",
-                     "max_with_reason": 3, "max_rows": 8, "max_with_reason_lg": 4, "max_rows_lg": 9},
-    "half_vertical.liquid": {"cell_class": "value value--xsmall lg:value--base lg:portrait:value--small",
-                              "big_class": "value value--base lg:value--base lg:portrait:value--small",
-                              "max_with_reason": 4, "max_rows": 10, "max_with_reason_lg": 5, "max_rows_lg": 10},
-    "half_horizontal.liquid": {"cell_class": "value value--xsmall lg:value--base lg:portrait:value--small",
-                              "big_class": "value value--base lg:value--base lg:portrait:value--small",
-                                "max_with_reason": 2, "max_rows": 4, "max_with_reason_lg": 3, "max_rows_lg": 6},
-    "quadrant.liquid": {"cell_class": "label lg:label--large lg:portrait:label--base",
-                         "max_with_reason": 0, "max_rows": 6, "max_with_reason_lg": 2, "max_rows_lg": 7},
+    "full.liquid": {"col_class": "value value--small lg:value--base lg:portrait:value--small", "col_badge_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
+                     "cell_class": "value value--base lg:value--large lg:portrait:value--base",
+                     "badge_class": "value value--base lg:value--base lg:portrait:value--small bg--black text--white rounded--xsmall px--1",
+                     "foot_class": "value value--base lg:value--base lg:portrait:value--base",
+                     "max_with_reason": 5, "max_rows": 7, "max_with_reason_lg": 6, "max_rows_lg": 9, "max_name_chars": 99},
+    "half_vertical.liquid": {"col_class": "value value--xsmall lg:value--base lg:portrait:value--small", "col_badge_class": "label label--inverted lg:label--large lg:portrait:label--base",
+                     "cell_class": "value value--small lg:value--base lg:portrait:value--small",
+                              "badge_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
+                              "foot_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall",
+                              "max_with_reason": 6, "max_rows": 11, "max_with_reason_lg": 6, "max_rows_lg": 11, "max_name_chars": 13},
+    "half_horizontal.liquid": {"col_class": "value value--small lg:value--base lg:portrait:value--small", "col_badge_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
+                     "cell_class": "value value--small lg:value--base lg:portrait:value--small",
+                              "badge_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
+                              "foot_class": "value value--small lg:value--base lg:portrait:value--small",
+                                "max_with_reason": 2, "max_rows": 3, "max_with_reason_lg": 3, "max_rows_lg": 6, "max_name_chars": 13},
+    "quadrant.liquid": {"col_class": "label lg:label--large lg:portrait:label--base", "col_badge_class": "label label--inverted lg:label--large lg:portrait:label--base",
+                     "cell_class": "label lg:label--large lg:portrait:label--base",
+                         "badge_class": "label label--inverted lg:label--large lg:portrait:label--base",
+                         "foot_class": "label lg:label--large lg:portrait:label--base",
+                         "max_with_reason": 0, "max_rows": 6, "max_with_reason_lg": 2, "max_rows_lg": 7, "max_name_chars": 99},
 }
 
+def badges(out, cfg):
+    """Count status badges: one per disrupted line per rendered block, whatever class builds them."""
+    classes = {cfg["badge_class"], cfg["col_badge_class"]}
+    return sum(out.count(f'class="{c}"') for c in classes)
+
 def render(layout, data, show_disruptions="true"):
-    """show_disruptions defaults on so the reason-cap checks below still bite; the box is off by default in settings.yml."""
-    return env.from_string(head + open(os.path.join(here, layout)).read()).render(show_disruptions=show_disruptions, **data)
+    """show_disruptions defaults on so the reason-cap checks below still bite; the box is off by default in settings.yml.
+    TRMNL exposes custom field values only under trmnl.plugin_settings.custom_fields_values (confirmed in the editor
+    on September 7, 2026: a top-level show_disruptions never rendered a reason), as "true"/"false" strings."""
+    trmnl = {"plugin_settings": {"custom_fields_values": {"show_disruptions": show_disruptions}}}
+    return env.from_string(head + open(os.path.join(here, layout)).read()).render(trmnl=trmnl, **data)
 
 def reason_state(n, cfg):
     """Where n falls relative to the reason-line caps."""
@@ -50,10 +67,10 @@ def assert_lg_cell(out, layout, cfg, ctx):
 
 def assert_reason_class(out, layout, state, ctx):
     if state == "block":
-        assert 'class="label lg:label--large lg:portrait:label--base block"' in out, \
+        assert 'class="label lg:label--xxlarge lg:portrait:label--large block"' in out, \
             f"{layout}: reason must render with block class ({ctx})"
     elif state == "hidden":
-        assert 'class="label lg:label--large lg:portrait:label--base hidden lg:visible"' in out, \
+        assert 'class="label lg:label--xxlarge lg:portrait:label--large hidden lg:visible"' in out, \
             f"{layout}: reason must render with hidden lg:visible class ({ctx})"
 
 def assert_stretch_y(out, layout, ctx):
@@ -118,7 +135,7 @@ RANK_ORDER = {"data": [
          "reason": "Elizabeth line: Mystery status code for testing the unranked fallback. "}]},
 ]}
 # Nine lines, each with exactly one disrupted status; mixed severities and a prefixed reason each.
-# More than full's max_rows (8), so full must also exercise compact mode, not just quadrant/half_horizontal.
+# More than full's max_rows (7), so full must also exercise compact mode, not just quadrant/half_horizontal.
 MANY = {"data": [
     {"id": "bakerloo", "name": "Bakerloo", "modeName": "tube", "lineStatuses": [
         {"statusSeverity": 9, "statusSeverityDescription": "Minor Delays",
@@ -149,9 +166,8 @@ MANY = {"data": [
          "reason": "Metropolitan Line: Minor delays due to a fire alert. "}]},
 ]}
 # Five lines, each with exactly one disrupted status and a prefixed reason. Sits strictly between
-# half_horizontal's max_rows (4) and max_rows_lg (6): exercises the "between the caps" branch that
-# ALL_GOOD/DISRUPTED/MANY miss. (full's between-max_with_reason branch is covered by FOUR below,
-# since full's max_with_reason_lg dropped to 4 and FIVE now exceeds it.)
+# half_horizontal's max_rows (3) and max_rows_lg (6): exercises the "between the caps" branch that
+# ALL_GOOD/DISRUPTED/MANY miss. On full it lands exactly on max_with_reason (5).
 FIVE = {"data": [
     {"id": "bakerloo", "name": "Bakerloo", "modeName": "tube", "lineStatuses": [
         {"statusSeverity": 9, "statusSeverityDescription": "Minor Delays",
@@ -169,9 +185,6 @@ FIVE = {"data": [
         {"statusSeverity": 6, "statusSeverityDescription": "Severe Delays",
          "reason": "Jubilee Line: Severe delays due to a person ill on a train. "}]},
 ]}
-# First four of FIVE's lines. Sits strictly between full's max_with_reason (3) and
-# max_with_reason_lg (4), which FIVE no longer does now that the X reason cap dropped to 4.
-FOUR = {"data": FIVE["data"][:4]}
 ERROR = {"$type": "Tfl.Api.Presentation.Entities.ApiError, Tfl.Api.Presentation.Entities",
          "timestampUtc": "2026-09-04T16:00:00Z", "exceptionType": "ApiArgumentException",
          "httpStatusCode": "BadRequest", "httpStatus": "BadRequest",
@@ -181,6 +194,7 @@ ERROR = {"$type": "Tfl.Api.Presentation.Entities.ApiError, Tfl.Api.Presentation.
 for layout in LAYOUTS:
     cfg = LAYOUT_CFG[layout]
     cell_class = cfg["cell_class"]
+    badge_lg = [t for t in cfg["badge_class"].split() if t.startswith("lg:")][0]
 
     out = render(layout, ALL_GOOD)
     assert "Good service on all lines" in out, f"{layout}: all-good text"
@@ -190,35 +204,46 @@ for layout in LAYOUTS:
     assert "lg:value--base" not in out and "lg:label--large" not in out, \
         f"{layout}: all-good render must not carry cell_class's lg: tokens"
 
-    # DISRUPTED: 3 disrupted lines (Piccadilly's two entries collapse to one row, its worst),
-    # table mode on every layout (3 <= every layout's max_rows).
+    # DISRUPTED: 3 disrupted lines (Piccadilly's two entries collapse to one row, its worst).
+    # Table mode everywhere except half_horizontal, whose max_rows of 2 puts it in "both" mode
+    # (every line rendered twice: hidden table for the X, columns for the original device).
     out = render(layout, DISRUPTED)
-    for s in ["Hammersmith &amp; City", "Piccadilly", "District", "Part Closed", "Severe Delays",
+    mult = 2 if table_state(3, cfg) == "both" else 1
+    long_ok = cfg["max_name_chars"] >= 18
+    hc = "Hammersmith &amp; City" if long_ok else "H&amp;C"
+    assert ("Hammersmith &amp; City" in out) == long_ok, f"{layout}: long name only within the character budget"
+    for s in [hc, "Piccadilly", "District", "Part Closed", "Severe Delays",
               "Good service on all other lines", "<th"]:
         assert s in out, f"{layout}: missing {s!r}"
     for s in ["Service Closed", "Victoria", "Good service on all lines", "No Issues", "Waterloo"]:
         assert s not in out, f"{layout}: must not show {s!r}"
-    assert out.count("Minor Delays") == 1, \
+    assert out.count("Minor Delays") == mult, \
         f"{layout}: only Hammersmith & City shows Minor Delays; Piccadilly must show its worse Severe Delays instead"
-    assert out.count("label--inverted") == 3, f"{layout}: one inverted status per disrupted line, not per entry"
-    assert "data-table-limit" not in out and 'class="hidden lg:visible"' not in out, \
-        f"{layout}: table_only render must have no row limiter and no wrapper"
+    assert badges(out, cfg) == 3 * mult, f"{layout}: one status badge per disrupted line, not per entry"
+    assert "data-table-limit" not in out, f"{layout}: no row limiter"
+    if mult == 1:
+        assert 'class="hidden lg:visible"' not in out, f"{layout}: table_only render must have no wrapper"
     assert "Reason" not in out, f"{layout}: no Reason header anywhere"
-    assert f'<span class="{cell_class} px--1">Good service on all other lines</span>' in out, \
-        f"{layout}: footer text must use cell_class {cell_class!r}"
-    assert "lg:label--large" in out, f"{layout}: status labels must carry lg:label--large (DISRUPTED)"
+    assert f'<span class="{cfg["foot_class"]} px--1">Good service on all other lines</span>' in out, \
+        f"{layout}: footer text must use foot_class"
+    assert badge_lg in out, f"{layout}: status labels must carry {badge_lg} (DISRUPTED)"
     assert_lg_cell(out, layout, cfg, "DISRUPTED")
     assert_table_state(out, layout, table_state(3, cfg), "DISRUPTED n=3")
     assert_stretch_y(out, layout, "DISRUPTED n=3")
     if layout == "full.liquid":
-        assert "value value--small" in out, f"{layout}: full uses small text"
-    elif layout in ("half_horizontal.liquid", "half_vertical.liquid"):
-        assert "value--xsmall" in out, f"{layout}: half uses xsmall text"
+        assert "value value--base" in out and "value value--small" not in out, f"{layout}: full uses base text"
+        assert f'class="{cfg["badge_class"]}"' in out, f"{layout}: badge uses the utility-built value--base badge"
+    elif layout == "half_vertical.liquid":
+        assert "value value--small" in out and f'class="{cfg["badge_class"]}"' in out, f"{layout}: half vertical uses small text and the utility badge"
+    elif layout == "half_horizontal.liquid":
+        assert "value value--small" in out and f'class="{cfg["badge_class"]}"' in out, f"{layout}: half horizontal uses small text and the utility badge"
+    else:
+        assert "label--xxlarge" not in out and 'class="label label--inverted' in out, f"{layout}: quadrant keeps the base badge"
 
     state = reason_state(3, cfg)
     if state in ("block", "hidden"):
         assert "Minor delays due to train cancellations" in out, f"{layout}: reason text"
-        assert 'data-clamp="2"' in out, f"{layout}: reason clamped"
+        assert 'data-clamp="1"' in out, f"{layout}: reason clamped"
         assert "cancellations. <" not in out, f"{layout}: reason trailing space stripped"
         assert "&lt;rail replacement&gt;" in out, f"{layout}: reason escaped"
         for prefix in ["Hammersmith and City Line: ", "Piccadilly Line: ", "District Line: "]:
@@ -230,7 +255,7 @@ for layout in LAYOUTS:
         assert_reason_class(out, layout, state, "DISRUPTED n=3")
     else:
         assert "Minor delays due to train cancellations" not in out, f"{layout}: reason text must be hidden"
-        assert 'data-clamp="2"' not in out, f"{layout}: no reason column, no clamp"
+        assert 'data-clamp="1"' not in out, f"{layout}: no reason column, no clamp"
 
     # RANK_ORDER: rank beats both numeric order (9 < 11) and TfL's listed order (9 listed first).
     # Checkbox off (missing, "false" or False): rows drop the reason line but keep name and status.
@@ -240,18 +265,9 @@ for layout in LAYOUTS:
         assert "Piccadilly" in out and "Severe Delays" in out, f"{layout}: name and status still render when show_disruptions={off!r}"
     out = render(layout, DISRUPTED, show_disruptions=True)
     assert "data-clamp" in out or cfg["max_with_reason_lg"] < 3, f"{layout}: boolean True must enable the reason line"
-    # Reasons off and few enough lines (DISRUPTED has 3): the name steps up to big_class, but only where a reason would have fit.
-    big = cfg.get("big_class")
-    off = render(layout, DISRUPTED, show_disruptions=None)
-    if big and 3 <= cfg["max_with_reason"]:
-        assert f'<span class="{big}">Piccadilly' in off, f"{layout}: name must use big_class when reasons are off"
-        assert f'<span class="{big}">' not in out, f"{layout}: big_class must not apply when reasons are on"
-    else:
-        assert "value--large\">Piccadilly" not in off and "value--base\">Piccadilly" not in off, f"{layout}: no big_class above max_with_reason or on quadrant"
-    assert f'<span class="{big}">' not in render(layout, MANY, show_disruptions=None), f"{layout}: big_class must not apply to MANY"
 
     out = render(layout, RANK_ORDER)
-    assert out.count("label--inverted") == 2, f"{layout}: one inverted status per disrupted line (RANK_ORDER)"
+    assert badges(out, cfg) == 2, f"{layout}: one status badge per disrupted line (RANK_ORDER)"
     assert "Part Closed" in out and "Mystery" in out, f"{layout}: RANK_ORDER labels missing"
     assert "Minor Delays" not in out, \
         f"{layout}: Northern's non-chosen Minor Delays must not win over Part Closed"
@@ -268,24 +284,28 @@ for layout in LAYOUTS:
     # MANY: 9 disrupted entries, one per line.
     out = render(layout, MANY)
     assert "Reason" not in out, f"{layout}: no Reason header anywhere (MANY)"
-    assert f'<span class="{cell_class} px--1">Good service on all other lines</span>' in out, \
-        f"{layout}: footer text must use cell_class {cell_class!r} (MANY)"
-    assert "lg:label--large" in out, f"{layout}: status labels must carry lg:label--large (MANY)"
+    assert f'<span class="{cfg["foot_class"]} px--1">Good service on all other lines</span>' in out, \
+        f"{layout}: footer text must use foot_class (MANY)"
+    assert badge_lg in out, f"{layout}: status labels must carry {badge_lg} (MANY)"
     assert_lg_cell(out, layout, cfg, "MANY")
     t_state = table_state(9, cfg)
     assert_table_state(out, layout, t_state, "MANY n=9")
     assert_stretch_y(out, layout, "MANY n=9")
     # "both" mode renders every line twice (once in the table, once in the columns).
     expected_inverted = 18 if t_state == "both" else 9
-    assert out.count("label--inverted") == expected_inverted, \
+    assert badges(out, cfg) == expected_inverted, \
         f"{layout}: expected {expected_inverted} inverted statuses for MANY ({t_state})"
     r_state = reason_state(9, cfg)
 
     if t_state == "table_only":
         assert "flex--wrap" not in out, f"{layout}: MANY table mode must not be compact"
-        assert "Hammersmith &amp; City" in out and "Waterloo &amp; City" in out, \
-            f"{layout}: MANY table mode shows full line names"
-        assert "H&amp;C" not in out and "W&amp;C" not in out, f"{layout}: MANY table mode must not shorten names"
+        if long_ok:
+            assert "Hammersmith &amp; City" in out and "Waterloo &amp; City" in out and "Metropolitan" in out, \
+                f"{layout}: MANY table mode shows full line names"
+            assert "H&amp;C" not in out and "W&amp;C" not in out, f"{layout}: MANY table mode must not shorten names"
+        else:
+            assert "H&amp;C" in out and "W&amp;C" in out and "Metropolitan" in out, \
+                f"{layout}: MANY table mode shortens only names over the budget (Metropolitan is 12 chars)"
         if r_state == "absent":
             assert "engineering works" not in out, f"{layout}: MANY table mode hides reason text (over max_with_reason_lg)"
     elif t_state == "compact_only":
@@ -293,9 +313,11 @@ for layout in LAYOUTS:
         assert "<thead" not in out, f"{layout}: MANY compact mode has no table header"
         assert "flex--wrap" not in out, f"{layout}: MANY compact mode must not use the old wrapped-chip layout"
         assert "H&amp;C" in out and "W&amp;C" in out, f"{layout}: MANY compact mode shortens H&C/W&C names"
+        assert f'<span class="{cfg["col_class"]}">H&amp;C' in out and f'<span class="{cfg["col_badge_class"]}">' in out, \
+            f"{layout}: MANY compact rows use col_class and col_badge_class"
         first_table, second_table = compact_tables(out)
         first_names = ["Bakerloo", "Central", "Circle", "District", "H&amp;C"]
-        second_names = ["Jubilee", "W&amp;C", "Victoria", "Metropolitan"]
+        second_names = ["Jubilee", "W&amp;C", "Victoria", "Met"]
         for name in first_names:
             assert name in first_table, f"{layout}: MANY first column missing {name!r}"
             assert name not in second_table, f"{layout}: MANY second column must not contain {name!r}"
@@ -304,14 +326,17 @@ for layout in LAYOUTS:
             assert name not in first_table, f"{layout}: MANY first column must not contain {name!r}"
     else:  # both: table and columns render together (X caps give room for the table too)
         assert out.count("<table") == 3, f"{layout}: MANY both mode renders one table plus two column tables"
-        assert "Hammersmith &amp; City" in out and "Waterloo &amp; City" in out, \
-            f"{layout}: MANY both mode table keeps full line names"
+        if long_ok:
+            assert "Hammersmith &amp; City" in out and "Waterloo &amp; City" in out, \
+                f"{layout}: MANY both mode table keeps full line names"
+        assert "Metropolitan" in out, f"{layout}: MANY both mode table keeps Metropolitan (within budget)"
         assert "H&amp;C" in out and "W&amp;C" in out, f"{layout}: MANY both mode columns shorten H&C/W&C names"
+        assert f'<span class="{cfg["col_class"]}">H&amp;C' in out, f"{layout}: MANY both mode columns use col_class"
         if r_state == "absent":
             assert "engineering works" not in out, f"{layout}: MANY both mode hides reason text (over max_with_reason_lg)"
         first_table, second_table = compact_tables(out)
         first_names = ["Bakerloo", "Central", "Circle", "District", "H&amp;C"]
-        second_names = ["Jubilee", "W&amp;C", "Victoria", "Metropolitan"]
+        second_names = ["Jubilee", "W&amp;C", "Victoria", "Met"]
         for name in first_names:
             assert name in first_table, f"{layout}: MANY first column missing {name!r}"
             assert name not in second_table, f"{layout}: MANY second column must not contain {name!r}"
@@ -321,35 +346,26 @@ for layout in LAYOUTS:
 
     # FIVE: 5 disrupted entries, exercises the "between the caps" branches.
     out = render(layout, FIVE)
-    assert "lg:label--large" in out, f"{layout}: status labels must carry lg:label--large (FIVE)"
+    assert badge_lg in out, f"{layout}: status labels must carry {badge_lg} (FIVE)"
     assert_lg_cell(out, layout, cfg, "FIVE")
     t_state = table_state(5, cfg)
     assert_table_state(out, layout, t_state, "FIVE n=5")
     assert_stretch_y(out, layout, "FIVE n=5")
     expected_inverted = 10 if t_state == "both" else 5
-    assert out.count("label--inverted") == expected_inverted, \
+    assert badges(out, cfg) == expected_inverted, \
         f"{layout}: expected {expected_inverted} inverted statuses for FIVE ({t_state})"
     r_state = reason_state(5, cfg)
     if r_state in ("block", "hidden") and t_state in ("table_only", "both"):
         assert "broken down train" in out, f"{layout}: FIVE reason text"
         assert_reason_class(out, layout, r_state, "FIVE n=5")
     elif r_state == "absent":
-        assert 'data-clamp="2"' not in out, f"{layout}: FIVE no reason column, no clamp"
+        assert 'data-clamp="1"' not in out, f"{layout}: FIVE no reason column, no clamp"
     if layout == "full.liquid":
-        assert t_state == "table_only" and r_state == "absent", \
-            "full: FIVE must now exceed both reason caps (max_with_reason_lg dropped to 4)"
-        # FOUR isolates full's between-max_with_reason branch, which FIVE vacated above.
-        out = render(layout, FOUR)
-        t_state = table_state(4, cfg)
-        r_state = reason_state(4, cfg)
-        assert t_state == "table_only" and r_state == "hidden", \
-            "full: FOUR must exercise the between-max_with_reason branch (3 < 4 <= 4)"
-        assert_table_state(out, layout, t_state, "FOUR n=4")
-        assert_stretch_y(out, layout, "FOUR n=4")
-        assert "broken down train" in out, f"{layout}: FOUR reason text"
-        assert_reason_class(out, layout, r_state, "FOUR n=4")
+        assert t_state == "table_only" and r_state == "block", \
+            "full: FIVE must land exactly on max_with_reason (5) and inside max_rows (7)"
+        assert out.count('data-clamp="1"') == 5, "full: FIVE shows five one-line reasons"
     if layout == "half_horizontal.liquid":
-        assert t_state == "both", "half_horizontal: FIVE must exercise the between-max_rows branch (4 < 5 <= 6)"
+        assert t_state == "both", "half_horizontal: FIVE must exercise the between-max_rows branch (3 < 5 <= 6)"
 
     out = render(layout, ERROR)
     assert "Could not fetch TfL status" in out and "notamode" in out and "<table" not in out, f"{layout}: 400 body"
