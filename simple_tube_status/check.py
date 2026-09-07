@@ -19,8 +19,9 @@ LAYOUT_CFG = {
                          "max_with_reason": 0, "max_rows": 6, "max_with_reason_lg": 2, "max_rows_lg": 7},
 }
 
-def render(layout, data):
-    return env.from_string(head + open(os.path.join(here, layout)).read()).render(**data)
+def render(layout, data, show_disruptions="true"):
+    """show_disruptions defaults on so the reason-cap checks below still bite; the box is off by default in settings.yml."""
+    return env.from_string(head + open(os.path.join(here, layout)).read()).render(show_disruptions=show_disruptions, **data)
 
 def reason_state(n, cfg):
     """Where n falls relative to the reason-line caps."""
@@ -229,6 +230,14 @@ for layout in LAYOUTS:
         assert 'data-clamp="2"' not in out, f"{layout}: no reason column, no clamp"
 
     # RANK_ORDER: rank beats both numeric order (9 < 11) and TfL's listed order (9 listed first).
+    # Checkbox off (missing, "false" or False): rows drop the reason line but keep name and status.
+    for off in (None, "false", False):
+        out = render(layout, DISRUPTED, show_disruptions=off)
+        assert "signal failure" not in out and "data-clamp" not in out, f"{layout}: reason must be absent when show_disruptions={off!r}"
+        assert "Piccadilly" in out and "Severe Delays" in out, f"{layout}: name and status still render when show_disruptions={off!r}"
+    out = render(layout, DISRUPTED, show_disruptions=True)
+    assert "data-clamp" in out or cfg["max_with_reason_lg"] < 3, f"{layout}: boolean True must enable the reason line"
+
     out = render(layout, RANK_ORDER)
     assert out.count("label--inverted") == 2, f"{layout}: one inverted status per disrupted line (RANK_ORDER)"
     assert "Part Closed" in out and "Mystery" in out, f"{layout}: RANK_ORDER labels missing"

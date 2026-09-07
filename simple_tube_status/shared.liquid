@@ -1,4 +1,6 @@
 {% assign lines = data %}
+{%- comment -%}ponytail: TRMNL may hand a boolean field over as true or "true"; accept both{%- endcomment -%}
+{% assign show_reason = false %}{% if show_disruptions == true or show_disruptions == "true" %}{% assign show_reason = true %}{% endif %}
 {% assign api_error = message | default: data.message %}
 {% assign roundel = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIzLjAuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9InN2ZzIxNTgiIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCgkgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCA2MTUuMzIyIDUwMCIKCSBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA2MTUuMzIyIDUwMCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPHBhdGggZmlsbD0iIzAwMEY5RiIgZD0iTTQ2OS40NTMsMjQ5Ljk4NmMwLDg5LjA3OC03Mi4yNiwxNjEuMzA4LTE2MS4zMzcsMTYxLjMwOGMtODkuMSwwLTE2MS4yOTQtNzIuMjMtMTYxLjI5NC0xNjEuMzA4CgkJYzAtODkuMDYzLDcyLjE5NC0xNjEuMjg2LDE2MS4yOTQtMTYxLjI4NkMzOTcuMTk0LDg4LjY5OSw0NjkuNDUzLDE2MC45MjIsNDY5LjQ1MywyNDkuOTg2IE0zMDguMTE2LDAKCQlDMTcwLjAyNywwLDU4LjA5NCwxMTEuOTI1LDU4LjA5NCwyNDkuOTg2QzU4LjA5NCwzODguMDYsMTcwLjAyNyw1MDAsMzA4LjExNiw1MDBjMTM4LjA2LDAsMjQ5Ljk4NS0xMTEuOTQsMjQ5Ljk4NS0yNTAuMDE0CgkJQzU1OC4xMDEsMTExLjkyNSw0NDYuMTc2LDAsMzA4LjExNiwwIi8+Cgk8cmVjdCB5PSIxOTkuNTE2IiBmaWxsPSIjMDAwRjlGIiB3aWR0aD0iNjE1LjMyMiIgaGVpZ2h0PSIxMDEuMTI5Ii8+CjwvZz4KPC9zdmc+Cg==" %}
 
@@ -53,7 +55,7 @@
 {%- endfor -%}
 {% if best_rank < 1000 %}
     <tr>
-      {% if disrupted <= max_with_reason_lg %}
+      {% if show_reason and disrupted <= max_with_reason_lg %}
       {%- comment -%}ponytail: drops everything before the first ": "; TfL always prefixes the line name{%- endcomment -%}
       {% assign reason_parts = best_status.reason | strip | split: ": " %}
       {% if reason_parts.size > 1 %}{% assign reason = reason_parts | slice: 1, 99 | join: ": " %}{% else %}{% assign reason = reason_parts | first %}{% endif %}
