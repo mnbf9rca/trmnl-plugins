@@ -35,6 +35,9 @@
 {% if disrupted > max_rows %}{% assign show_compact = true %}{% endif %}
 {% assign both = false %}
 {% if show_table and show_compact %}{% assign both = true %}{% endif %}
+{%- comment -%}ponytail: with reasons off, a row is one line, so below max_with_reason (a cap sized for three-line rows) the name can go up two sizes safely{%- endcomment -%}
+{% assign name_class = cell_class %}
+{% if show_reason == false and big_class and disrupted <= max_with_reason %}{% assign name_class = big_class %}{% endif %}
 {% if show_table %}
 {% capture rows %}
 {% for line in lines %}
@@ -62,7 +65,7 @@
       {% if disrupted <= max_with_reason %}{% assign reason_class = "label lg:label--large lg:portrait:label--base block" %}{% else %}{% assign reason_class = "label lg:label--large lg:portrait:label--base hidden lg:visible" %}{% endif %}
       <td class="pl--1"><span class="{{ cell_class }}">{{ line.name | escape }}</span><span class="{{ reason_class }}" data-clamp="2">{{ reason | escape }}</span></td>
       {% else %}
-      <td class="pl--1"><span class="{{ cell_class }}">{{ line.name | escape }}</span></td>
+      <td class="pl--1"><span class="{{ name_class }}">{{ line.name | escape }}</span></td>
       {% endif %}
       <td class="text--right pr--1"><span class="label label--inverted lg:label--large lg:portrait:label--base">{{ best_status.statusSeverityDescription | escape }}</span></td>
     </tr>

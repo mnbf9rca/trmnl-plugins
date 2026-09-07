@@ -10,10 +10,13 @@ env = Environment(loader=DictLoader({"board": m.group(1)}))
 LAYOUTS = ["full.liquid", "half_horizontal.liquid", "half_vertical.liquid", "quadrant.liquid"]
 LAYOUT_CFG = {
     "full.liquid": {"cell_class": "value value--small lg:value--large lg:portrait:value--base",
+                     "big_class": "value value--large lg:value--large lg:portrait:value--base",
                      "max_with_reason": 3, "max_rows": 8, "max_with_reason_lg": 4, "max_rows_lg": 9},
     "half_vertical.liquid": {"cell_class": "value value--xsmall lg:value--base lg:portrait:value--small",
+                              "big_class": "value value--base lg:value--base lg:portrait:value--small",
                               "max_with_reason": 4, "max_rows": 10, "max_with_reason_lg": 5, "max_rows_lg": 10},
     "half_horizontal.liquid": {"cell_class": "value value--xsmall lg:value--base lg:portrait:value--small",
+                              "big_class": "value value--base lg:value--base lg:portrait:value--small",
                                 "max_with_reason": 2, "max_rows": 4, "max_with_reason_lg": 3, "max_rows_lg": 6},
     "quadrant.liquid": {"cell_class": "label lg:label--large lg:portrait:label--base",
                          "max_with_reason": 0, "max_rows": 6, "max_with_reason_lg": 2, "max_rows_lg": 7},
@@ -237,6 +240,15 @@ for layout in LAYOUTS:
         assert "Piccadilly" in out and "Severe Delays" in out, f"{layout}: name and status still render when show_disruptions={off!r}"
     out = render(layout, DISRUPTED, show_disruptions=True)
     assert "data-clamp" in out or cfg["max_with_reason_lg"] < 3, f"{layout}: boolean True must enable the reason line"
+    # Reasons off and few enough lines (DISRUPTED has 3): the name steps up to big_class, but only where a reason would have fit.
+    big = cfg.get("big_class")
+    off = render(layout, DISRUPTED, show_disruptions=None)
+    if big and 3 <= cfg["max_with_reason"]:
+        assert f'<span class="{big}">Piccadilly' in off, f"{layout}: name must use big_class when reasons are off"
+        assert f'<span class="{big}">' not in out, f"{layout}: big_class must not apply when reasons are on"
+    else:
+        assert "value--large\">Piccadilly" not in off and "value--base\">Piccadilly" not in off, f"{layout}: no big_class above max_with_reason or on quadrant"
+    assert f'<span class="{big}">' not in render(layout, MANY, show_disruptions=None), f"{layout}: big_class must not apply to MANY"
 
     out = render(layout, RANK_ORDER)
     assert out.count("label--inverted") == 2, f"{layout}: one inverted status per disrupted line (RANK_ORDER)"
