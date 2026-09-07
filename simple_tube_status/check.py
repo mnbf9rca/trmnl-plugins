@@ -1,5 +1,8 @@
-"""Render check: python3 simple_tube_status/check.py (needs python-liquid). Fails if the board logic breaks."""
-import os, re
+"""Render check: python3 simple_tube_status/check.py (needs python-liquid). Fails if the board logic breaks.
+
+python3 simple_tube_status/check.py dump <three|five|nine> prints that fixture as TRMNL static data
+({"data": [...]}, the shape the polling strategy produces) for pasting into the plugin's Static Data box."""
+import os, re, sys, json
 from liquid import Environment, DictLoader
 
 here = os.path.dirname(os.path.abspath(__file__))
@@ -190,6 +193,13 @@ ERROR = {"$type": "Tfl.Api.Presentation.Entities.ApiError, Tfl.Api.Presentation.
          "httpStatusCode": "BadRequest", "httpStatus": "BadRequest",
          "relativeUri": "/Line/Mode/notamode/Status",
          "message": "The following mode is not recognised: notamode"}
+
+STATIC = {"three": lambda: DISRUPTED["data"],
+          "five": lambda: FIVE["data"] + [good("northern", "Northern")],
+          "nine": lambda: MANY["data"] + [good("northern", "Northern")]}
+if sys.argv[1:2] == ["dump"]:
+    print(json.dumps({"data": STATIC[sys.argv[2]]()}, separators=(",", ":")))
+    sys.exit(0)
 
 for layout in LAYOUTS:
     cfg = LAYOUT_CFG[layout]
