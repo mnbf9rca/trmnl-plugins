@@ -15,7 +15,8 @@ payload = {
     "locationName": "Wimbledon",
     "trainServices": [svc("10:32", "On time", "London Waterloo"),
                       svc("10:41", "10:47", "London Waterloo", via="via Clapham Junction"),
-                      svc("10:50", "Cancelled", "London Waterloo", plat=None, cancelled=True)],
+                      svc("10:50", "Cancelled", "London Waterloo", plat=None, cancelled=True),
+                      svc("10:58", "Delayed", "London Waterloo")],
     "nrccMessages": [{"Value": "<p>Delays between <a href='#'>Wimbledon</a> and Waterloo.</p>"}],
 }
 
@@ -28,7 +29,9 @@ for s in ["Wimbledon", "10:32", "On time", "Exp 10:47", "via Clapham Junction", 
     assert s in out, f"missing {s!r}"
 assert "<a href" not in out, "html not stripped"
 assert "lg:value--large" in out and "lg:portrait:value--base" in out, "TRMNL X sizing"
-assert out.count("label--inverted") == 2, "only late/cancelled get inverted"
+assert out.count("label--inverted") == 2, "only Cancelled/Delayed/No report get inverted"
+inverted = re.findall(r'label--inverted[^>]*>([^<]*)<', out)
+assert sorted(inverted) == ["Cancelled", "Delayed"], f"expected times are plain text, got {inverted}"
 assert 'class="instance"' in out and "data:image/svg+xml;base64," in out, "documented title bar with embedded icon"
 assert "icons8" not in out and "gap--distribute" not in out, "no external icon, no nested title bar"
 

@@ -14,3 +14,4 @@ Do not revisit these without new evidence from a device or the simulator:
 - National Rail Departures uses its own `.board` style block; that is unrelated to Simple Tube Status, which has no custom style block.
 - No `data-clamp` on title spans. It truncated "New Southgate via Finsbury Park" on the TRMNL X even with space to spare.
 - No "National Rail" instance label on half vertical or quadrant. It collided with the title at 390 pixels wide.
+- Expected times (`Exp HH:MM`) are plain text like `On time`. Only `Cancelled`, `Delayed` and `No report` get the inverted label, so delays and cancellations stand out at a glance (September 11, 2026).

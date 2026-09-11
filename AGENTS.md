@@ -15,7 +15,7 @@ Recipe plugins for TRMNL e-ink displays. One directory per plugin, each holding 
 ## Secrets
 
 - Secrets live in 1Password, never in the repo or the shell environment. Each plugin folder has a `.env.tpl` that maps environment variable names to `op://` references and holds no values. It always includes that plugin's `TRMNL_MCP_API_KEY`, plus any data-source secrets the plugin needs. `.envrc` loads only a service-account token. All of these files are safe to commit.
-- Start Claude with `op_claude <plugin_dir>`. It runs `op run --env-file=<plugin_dir>/.env.tpl -- claude`, so the TRMNL MCP server talks to that one plugin and the secrets exist only inside that process.
+- Start Claude with `op_claude <plugin_dir>`. It runs `op run --env-file=<plugin_dir>/.env.tpl -- claude`, so the TRMNL MCP server talks to that one plugin and the secrets exist only inside that process. It also exports `TRMNL_PLUGIN=<plugin_dir>`, and a SessionStart hook in `.claude/settings.json` prints that name into the session, so check it before any MCP write rather than asking which plugin is loaded.
 - To run anything else that needs a secret, wrap it the same way: `op run --env-file=<plugin_dir>/.env.tpl -- sh -c '...'` and read the variable inside that child process. Never `op read` a secret into the main shell, write it to a file, or print it.
 - To add a new secret, add one line to the plugin's `.env.tpl`. Do not document individual keys here.
 

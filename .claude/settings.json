@@ -1,5 +1,17 @@
 {
   "enabledPlugins": {
     "trmnl@trmnl-agent-skills": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"TRMNL MCP key loaded for plugin: ${TRMNL_PLUGIN:-none (not started via op_claude)}\""
+          }
+        ]
+      }
+    ]
   }
 }
