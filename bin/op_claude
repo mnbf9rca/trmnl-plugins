@@ -12,4 +12,6 @@ if [ ! -f "$plugin/.env.tpl" ]; then
   exit 2
 fi
 shift
+# Names the plugin whose TRMNL MCP key is loaded; the SessionStart hook in .claude/settings.json prints it.
+export TRMNL_PLUGIN="$(basename "$plugin")"
 exec op run --no-masking --env-file="$plugin/.env.tpl" -- claude "$@"

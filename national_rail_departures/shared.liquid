@@ -44,7 +44,7 @@
       <td><span class="{{ cell_class }}">{{ dest.locationName }}{% if dest.via %} {{ dest.via }}{% endif %}</span></td>
       {% if platform %}<td class="text--center"><span class="{{ cell_class }}">{{ s.platform | default: "-" }}</span></td>{% endif %}
       <td class="text--right pr--1">
-        {% if status == "On time" %}<span class="{{ cell_class }}">{{ status }}</span>{% else %}<span class="label label--inverted lg:label--large lg:portrait:label--base">{{ status }}</span>{% endif %}
+        {% if status == "Cancelled" or status == "Delayed" or status == "No report" %}<span class="label label--inverted lg:label--large lg:portrait:label--base">{{ status }}</span>{% else %}<span class="{{ cell_class }} value--tnums">{{ status }}</span>{% endif %}
       </td>
     </tr>
     {% endfor %}
