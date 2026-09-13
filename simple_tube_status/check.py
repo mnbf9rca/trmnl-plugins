@@ -3,6 +3,8 @@
 python3 simple_tube_status/check.py dump <three|five|nine> prints that fixture as TRMNL static data
 ({"data": [...]}, the shape the polling strategy produces) for pasting into the plugin's Static Data box."""
 import os, re, sys, json
+from glob import glob
+from html import escape
 from liquid import Environment, DictLoader
 
 here = os.path.dirname(os.path.abspath(__file__))
@@ -104,6 +106,7 @@ def assert_board(out, layout, cfg, data, ctx, reasons=True):
     for selector in ("foot", "reason", "table", "columns"):
         assert f"[data-board={selector}]" in scripts[0], f"{layout}: script missing data-board={selector} ({ctx})"
     assert "document.currentScript" in scripts[0], f"{layout}: script must scope itself from document.currentScript ({ctx})"
+    return table_rows
 
 def assert_toggles(layout, cfg, data, ctx):
     for value in ("true", True):
@@ -299,5 +302,45 @@ for layout in LAYOUTS:
     assert "TfL Line Status" in out and 'style="' not in out, f"{layout}: title bar present, no inline styles"
     assert "<style" not in out, f"{layout}: shared head must carry no <style> block"
     assert "data:image/svg+xml;base64," in out, f"{layout}: roundel must be an embedded base64 data URI"
+
+# Raw API arrays arrive as data; JSON error objects arrive at the top level.
+severity_rank = {code: rank for rank, code in enumerate((1, 2, 16, 3, 4, 5, 11, 6, 8, 7, 15, 14, 9, 12, 13, 17, 0, 19))}
+for path in sorted(glob(os.path.join(here, "fixtures", "*.json"))):
+    with open(path) as fixture:
+        payload = json.load(fixture)
+    data = {"data": payload} if isinstance(payload, list) else payload
+    winners = []
+    if isinstance(payload, list):
+        for line in payload:
+            statuses = [status for status in line["lineStatuses"] if status["statusSeverity"] not in (10, 18, 20)]
+            if statuses:
+                # min keeps TfL's order on a tie, including unranked codes.
+                winners.append((line, min(statuses, key=lambda status: severity_rank.get(status["statusSeverity"], 99))))
+    for layout in LAYOUTS:
+        cfg = LAYOUT_CFG[layout]
+        for toggle in ("true", "false"):
+            ctx = f"{os.path.basename(path)} show_disruptions={toggle}"
+            out = render(layout, data, toggle)
+            if isinstance(payload, dict):
+                assert "Could not fetch TfL status" in out and "<table" not in out, f"{layout}: error body ({ctx})"
+                assert escape(payload["message"]) in out, f"{layout}: escaped error message ({ctx})"
+            elif not payload:
+                assert "Could not fetch TfL status" in out and "<table" not in out, f"{layout}: empty array ({ctx})"
+            elif not winners:
+                assert "Good service on all lines" in out and "<table" not in out, f"{layout}: all-good capture ({ctx})"
+            else:
+                rows = assert_board(out, layout, cfg, data, ctx, reasons=toggle == "true")
+                for row, (line, status) in zip(rows, winners):
+                    badge = f'<span class="{cfg["badge_class"]}">{escape(status["statusSeverityDescription"])}</span>'
+                    assert badge in row, f"{layout}: {line['name']} winning badge ({ctx})"
+                    if toggle == "true":
+                        reason = status.get("reason", "").strip().split(": ", 1)[-1]
+                        assert f'data-board="reason" data-clamp="1">{escape(reason)}</span>' in row, \
+                            f"{layout}: {line['name']} winning reason ({ctx})"
+                    if os.path.basename(path) == "2026-09-13-tube-elizabeth-overground.json" and line["id"] in ("district", "lioness"):
+                        assert f'<span class="{cfg["badge_class"]}">Part Suspended</span>' in row, \
+                            f"{layout}: {line['name']} must show Part Suspended ({ctx})"
+                        assert f'<span class="{cfg["badge_class"]}">Part Closure</span>' not in row, \
+                            f"{layout}: {line['name']} must not show Part Closure ({ctx})"
 
 print("ok")
