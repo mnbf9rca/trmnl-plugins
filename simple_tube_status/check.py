@@ -27,7 +27,7 @@ LAYOUT_CFG = {
                               "badge_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
                               "foot_class": "value value--small lg:value--base lg:portrait:value--small",
                                 "max_with_reason": 2, "max_rows": 3, "max_with_reason_lg": 3, "max_rows_lg": 6, "max_name_chars": 13},
-    "quadrant.liquid": {"col_class": "label lg:label--large lg:portrait:label--base", "col_badge_class": "label label--inverted lg:label--large lg:portrait:label--base",
+    "quadrant.liquid": {"col_class": "label label--small lg:label--base lg:portrait:label--small", "col_badge_class": "label label--small label--inverted lg:label--base lg:portrait:label--small",
                      "cell_class": "label lg:label--large lg:portrait:label--base",
                          "badge_class": "label label--inverted lg:label--large lg:portrait:label--base",
                          "foot_class": "label lg:label--large lg:portrait:label--base",

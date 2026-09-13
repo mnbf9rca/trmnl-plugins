@@ -19,7 +19,7 @@ custom_fields:
   default: false
   name: Show disruption information
   description: Show TfL's reason under each disrupted line
-  help_text: Off by default. The reason text is small on the original TRMNL but reads well on a TRMNL X.
+  help_text: Off by default. Reasons only appear when they fit under every disrupted line, so on a busy day with many disruptions the board drops them and shows names and statuses only. The reason text is small on the original TRMNL but reads well on a TRMNL X.
 - keyname: about
   name: About This Plugin
   category: travel,news
