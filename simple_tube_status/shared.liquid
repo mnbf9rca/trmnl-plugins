@@ -30,13 +30,6 @@
   <span class="value value--large lg:value--xlarge lg:portrait:value--large">Good service on all lines</span>
 </div>
 {% else %}
-{% assign show_table = false %}
-{% if disrupted <= max_rows_lg %}{% assign show_table = true %}{% endif %}
-{% assign show_compact = false %}
-{% if disrupted > max_rows %}{% assign show_compact = true %}{% endif %}
-{% assign both = false %}
-{% if show_table and show_compact %}{% assign both = true %}{% endif %}
-{% if show_table %}
 {% capture rows %}
 {% for line in lines %}
 {%- assign best_rank = 1000 -%}
@@ -60,12 +53,11 @@
 {%- assign name_len = line.name | size -%}
 {%- if name_len > max_name_chars -%}{%- assign show_name = short_name -%}{%- else -%}{%- assign show_name = line.name -%}{%- endif -%}
     <tr>
-      {% if show_reason and disrupted <= max_with_reason_lg %}
+      {% if show_reason %}
       {%- comment -%}ponytail: drops everything before the first ": "; TfL always prefixes the line name{%- endcomment -%}
       {% assign reason_parts = best_status.reason | strip | split: ": " %}
       {% if reason_parts.size > 1 %}{% assign reason = reason_parts | slice: 1, 99 | join: ": " %}{% else %}{% assign reason = reason_parts | first %}{% endif %}
-      {% if disrupted <= max_with_reason %}{% assign reason_class = "label lg:label--xxlarge lg:portrait:label--large block" %}{% else %}{% assign reason_class = "label lg:label--xxlarge lg:portrait:label--large hidden lg:visible" %}{% endif %}
-      <td class="pl--1"><span class="{{ cell_class }}">{{ show_name | escape }}</span><span class="{{ reason_class }}" data-clamp="1">{{ reason | escape }}</span></td>
+      <td class="pl--1"><span class="{{ cell_class }}">{{ show_name | escape }}</span><span class="label lg:label--xxlarge lg:portrait:label--large block" data-board="reason" data-clamp="1">{{ reason | escape }}</span></td>
       {% else %}
       <td class="pl--1"><span class="{{ cell_class }}">{{ show_name | escape }}</span></td>
       {% endif %}
@@ -74,8 +66,6 @@
 {% endif %}
 {% endfor %}
 {% endcapture %}
-{% endif %}
-{% if show_compact %}
 {% assign half = disrupted | plus: 1 | divided_by: 2 %}
 {% assign seen = 0 %}
 {% capture col1 %}{% endcapture %}
@@ -108,10 +98,8 @@
 {%- endif -%}
 {%- endif -%}
 {%- endfor -%}
-{% endif %}
 <div class="grow w--full">
-{% if show_table %}
-{% if both %}<div class="hidden lg:visible">{% endif %}
+<div data-board="table">
 <table class="table {{ table_class }}">
   <thead>
     <tr>
@@ -123,10 +111,8 @@
 {{ rows }}
   </tbody>
 </table>
-{% if both %}</div>{% endif %}
-{% endif %}
-{% if show_compact %}
-{% if both %}<div class="lg:hidden">{% endif %}
+</div>
+<div class="hidden" data-board="columns">
 <div class="columns">
   <div class="column">
     <table class="table {{ table_class }}"><tbody>
@@ -139,10 +125,31 @@
     </tbody></table>
   </div>
 </div>
-{% if both %}</div>{% endif %}
-{% endif %}
 </div>
-<span class="{{ foot_class }} px--1">Good service on all other lines</span>
+</div>
+<span class="{{ foot_class }} px--1" data-board="foot">Good service on all other lines</span>
+{%- comment -%}ponytail: Liquid cannot measure, so the renderer's browser does. The table with reasons is the default; if the footer falls off the bottom of the layout the reasons are hidden, and if it still does the table gives way to the two-column block. Re-run whenever the layout is resized, because the editor applies the chosen device after load.{%- endcomment -%}
+<script>
+(function (layout) {
+  function fit() {
+    var foot = layout.querySelector("[data-board=foot]");
+    var reasons = layout.querySelectorAll("[data-board=reason]");
+    var table = layout.querySelector("[data-board=table]");
+    var columns = layout.querySelector("[data-board=columns]");
+    function overflows() { return foot.getBoundingClientRect().bottom > layout.getBoundingClientRect().bottom + 1; }
+    reasons.forEach(function (r) { r.style.display = ""; });
+    table.classList.remove("hidden");
+    columns.classList.add("hidden");
+    if (!overflows()) return;
+    reasons.forEach(function (r) { r.style.display = "none"; });
+    if (!overflows()) return;
+    table.classList.add("hidden");
+    columns.classList.remove("hidden");
+  }
+  document.fonts.ready.then(fit);
+  new ResizeObserver(fit).observe(layout);
+})(document.currentScript.closest(".layout"));
+</script>
 {% endif %}
 {% endif %}
 {% endtemplate %}
