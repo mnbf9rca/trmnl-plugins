@@ -12,22 +12,22 @@ head = shared[: m.start()]
 env = Environment(loader=DictLoader({"board": m.group(1)}))
 LAYOUTS = ["full.liquid", "half_horizontal.liquid", "half_vertical.liquid", "quadrant.liquid"]
 LAYOUT_CFG = {
-    "full.liquid": {"col_class": "value value--small lg:value--base lg:portrait:value--small", "col_badge_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
-                     "cell_class": "value value--base lg:value--large lg:portrait:value--base",
-                     "badge_class": "value value--base lg:value--base lg:portrait:value--small bg--black text--white rounded--xsmall px--1",
-                     "foot_class": "value value--base lg:value--base lg:portrait:value--base", "max_name_chars": 99},
-    "half_vertical.liquid": {"col_class": "value value--xsmall lg:value--base lg:portrait:value--small", "col_badge_class": "label label--inverted lg:label--large lg:portrait:label--base",
-                     "cell_class": "value value--small lg:value--base lg:portrait:value--small",
-                              "badge_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
-                              "foot_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall", "max_name_chars": 13},
+    "full.liquid": {"col_class": "value value--small portrait:label--small lg:value--base lg:portrait:value--small", "col_badge_class": "value value--xsmall portrait:label--small lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
+                     "cell_class": "value value--base portrait:value--small lg:value--large lg:portrait:value--base",
+                     "badge_class": "value value--base portrait:value--xsmall lg:value--base lg:portrait:value--small bg--black text--white rounded--xsmall px--1",
+                     "foot_class": "value value--base portrait:value--small lg:value--base lg:portrait:value--base", "max_name_chars": 99},
+    "half_vertical.liquid": {"col_class": "value value--xsmall portrait:label--small lg:value--base lg:portrait:value--small", "col_badge_class": "label label--inverted portrait:label--small lg:label--large lg:portrait:label--base",
+                     "cell_class": "value value--small portrait:label--small lg:value--base lg:portrait:value--small",
+                              "badge_class": "value value--xsmall portrait:label--small lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
+                              "foot_class": "value value--xsmall portrait:label--small lg:value--small lg:portrait:value--xsmall", "max_name_chars": 13},
     "half_horizontal.liquid": {"col_class": "value value--small lg:value--base lg:portrait:value--small", "col_badge_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
                      "cell_class": "value value--small lg:value--base lg:portrait:value--small",
                               "badge_class": "value value--xsmall lg:value--small lg:portrait:value--xsmall bg--black text--white rounded--xsmall px--1",
                               "foot_class": "value value--small lg:value--base lg:portrait:value--small", "max_name_chars": 13},
     "quadrant.liquid": {"col_class": "label label--small lg:label--base lg:portrait:label--small", "col_badge_class": "label label--small label--inverted lg:label--base lg:portrait:label--small",
-                     "cell_class": "label lg:label--large lg:portrait:label--base",
-                         "badge_class": "label label--inverted lg:label--large lg:portrait:label--base",
-                         "foot_class": "label lg:label--large lg:portrait:label--base", "max_name_chars": 99},
+                     "cell_class": "label portrait:label--small lg:label--large lg:portrait:label--base",
+                         "badge_class": "label label--inverted portrait:label--small lg:label--large lg:portrait:label--base",
+                         "foot_class": "label portrait:label--small lg:label--large lg:portrait:label--base", "max_name_chars": 13},
 }
 
 def badges(out, cfg):
