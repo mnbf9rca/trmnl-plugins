@@ -1,0 +1,1 @@
+{"$type":"Tfl.Api.Presentation.Entities.ApiError, Tfl.Api.Presentation.Entities","timestampUtc":"2026-09-13T19:57:09.0350171Z","exceptionType":"ApiArgumentException","httpStatusCode":400,"httpStatus":"BadRequest","relativeUri":"/Line/Mode/bogus/Status","message":"The following mode is not recognised: bogus"}
